@@ -24,14 +24,15 @@ public class BookRemovalTest {
 		testBooks.add(new Book("Quo vadis", "Henryk Sienkiewicz", 1896));
 		testBooks.add(new Book("Zemsta", "Aleksander Fredro", 1838));
 		testBooks.add(new Book("Nad Niemnem", "Aleksander Fredro", 1838));
+		
+		for (Book book: testBooks) {
+			library.addNewBook(book);
+		}
 	}
 	
 	@Test
 	public void testBooksRemoving() {
-		for (Book book: testBooks) {
-			library.addNewBook(book);
-		}
-		
+			
 		int numberOfBooks = testBooks.size();
 		int indexToRemove = (int) (Math.random() * (numberOfBooks - 0.5));
 		
