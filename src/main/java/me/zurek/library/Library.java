@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 
 import me.zurek.library.entity.Book;
+import me.zurek.library.entity.Person;
 import me.zurek.library.utils.Utils;
 
 public class Library {
@@ -137,5 +138,35 @@ public class Library {
 		System.out.println(header);
 		System.out.println(StringUtils.repeat('-', header.length()));
 		return foundBooks.map(b -> {Utils.bookToSearchResultRowPrint(b); return b;}).collect(Collectors.toList());
+	}
+	
+	/**
+	 * Lending a book by ID for specified person.
+	 * 
+	 * @param id ID of book to lend
+	 * @param name Name of the borrower
+	 * @return If succeeded
+	 */
+	public boolean lendABook(int id, String name) {
+		if (books.get(id).getLentTo() != null) {
+			System.out.println("Book is already lent");
+			return false;
+		}
+		books.get(id).setLentTo(new Person(name));
+		return true;
+	}
+	
+	/**
+	 * Printing book's details (ID, title, author, year, if is available or who borrowed) to the standard output.
+	 * 
+	 * @param id ID of the book to see details
+	 */
+	public void seeDetails(int id) {
+		Book b = books.get(id);
+		String header = Utils.bookDetailsToSearchResultRow("ID","Title","Author","Year","Lent to / --- avail.");
+		System.out.println();
+		System.out.println(header);
+		System.out.println(StringUtils.repeat('-', header.length()));
+		Utils.bookToSearchResultRowPrint(b);
 	}
 }
