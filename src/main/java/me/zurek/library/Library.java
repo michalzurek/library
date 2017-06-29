@@ -1,16 +1,16 @@
 package me.zurek.library;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 
 import me.zurek.library.entity.Book;
-import me.zurek.library.entity.Person;
+import me.zurek.library.utils.Utils;
 
 public class Library {
 	
@@ -72,7 +72,7 @@ public class Library {
 	}
 	
 	
-	Map<Integer,Map<String,Map<String,Set<Book>>>> prepareDistinctBooksList() {
+	Map<Integer,Map<String,Map<String,Set<Book>>>> prepareDistinctBooksCollection() {
 		Map<Integer,Map<String,Map<String,Set<Book>>>> allBooks = books.stream()
 			.collect(Collectors.groupingBy((Book::getYear), 
 							Collectors.groupingBy((Book::getAuthor),
@@ -82,14 +82,15 @@ public class Library {
 		return allBooks;
 	}
 	
+	/**
+	 * Prints to the standard output all books from the library distinctly
+	 */
 	public void listAllBooksDistinctly() {
-		Map<Integer,Map<String,Map<String,Set<Book>>>> allBooks = prepareDistinctBooksList();
+		Map<Integer,Map<String,Map<String,Set<Book>>>> allBooks = prepareDistinctBooksCollection();
 		
-		String header = formatRecordToPrint("Year","Author","Title","Available","Lent");
-		int lineLength = header.length();
+		String header = Utils.distinctBookToListResultRow("Year","Author","Title","Available","Lent");
 		System.out.println(header);
-		System.out.println(StringUtils.repeat('-', lineLength));
-		int headerCounter = 1;
+		System.out.println(StringUtils.repeat('-', header.length()));
 		
 		for (Integer year : allBooks.keySet()) {
 			for (String author : allBooks.get(year).keySet()) {
@@ -99,31 +100,42 @@ public class Library {
 					for (Book b : allBooks.get(year).get(author).get(title)) {
 						if (b.getLentTo() != null) ++lent;
 					}
-					System.out.println(formatRecordToPrint(year.toString(),author,title,Integer.toString(copies-lent),Integer.toString(lent)));
-					
-					printHeaderIfNeeded(headerCounter, header, lineLength);
+					System.out.println(Utils.distinctBookToListResultRow(year.toString(),author,title,Integer.toString(copies-lent),Integer.toString(lent)));
 				}
 			}
 		}
 	}
 	
-	private String fixLenStr(String string, int length) {
-	    return String.format("%1$-"+length+ "s", StringUtils.abbreviate(string,length));
-	}
 	
-	private String formatRecordToPrint(String year, String author, String title, String available, String lent) {
-		return " " + fixLenStr(year,8) + "| " + fixLenStr(author,30) + "| " + fixLenStr(title,30) + "| " + fixLenStr(available,10) + "| " + fixLenStr(lent,10);
-	}
 	
-	private void printHeaderIfNeeded(int headerCounter, String header, int lineLength) {
-		++headerCounter;
-		if (headerCounter == HEADER_INTERVAL) {
-			System.out.println();
-			System.out.println(header);
-			System.out.println(StringUtils.repeat('-', lineLength));
-			headerCounter = 1;
+	
+	/**
+	 * Searches for the books and prints them to the standard output.
+	 * You can search by all or only selected attributes. Pass null to the others.
+	 * 
+	 * @param title Title to search
+	 * @param author Author to search
+	 * @param year Year to search
+	 * @return List of matching books
+	 */
+	public List<Book> searchBooks(String title, String author, Integer year) {
+		Stream<Book> foundBooks = books.stream();
+		
+		if (year != null) {
+			foundBooks = foundBooks.filter(b -> b.getYear().equals(year));
 		}
+		if (author != null) {
+			foundBooks = foundBooks.filter(b -> b.getAuthor().equals(author));
+		}
+		if (title != null) {
+			foundBooks = foundBooks.filter(b -> b.getTitle().equals(title));
+		}
+		
+		
+		String header = Utils.bookDetailsToSearchResultRow("ID","Title","Author","Year","Lent to");
+		System.out.println();
+		System.out.println(header);
+		System.out.println(StringUtils.repeat('-', header.length()));
+		return foundBooks.map(b -> {Utils.bookToSearchResultRowPrint(b); return b;}).collect(Collectors.toList());
 	}
-	
-
 }

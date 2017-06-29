@@ -56,7 +56,7 @@ public class BooksListingTest {
 	
 	@Test
 	public void testGrouping() {
-		Map<Integer,Map<String,Map<String,Set<Book>>>> allBooks = library.prepareDistinctBooksList();
+		Map<Integer,Map<String,Map<String,Set<Book>>>> allBooks = library.prepareDistinctBooksCollection();
 		
 		assertEquals((long) LALKA,allBooks.get(1890).get("Bolesław Prus").get("Lalka").stream().filter(b -> b.getLentTo() == null).count());
 		assertEquals((long) WESELE,allBooks.get(1901).get("Stanisław Wyspiański").get("Wesele").stream().filter(b -> b.getLentTo() == null).count());
